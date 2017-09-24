@@ -14,7 +14,7 @@ open http://localhost:8080/
 
 ### Building Site
 ```bash
-npm run build # builds static files into dist/
+yarn run build # builds static files into dist/
 ```
 
 ### Files
