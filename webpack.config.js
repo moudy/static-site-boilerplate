@@ -4,10 +4,26 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
 const UglifyJSPlugin = require("uglifyjs-webpack-plugin");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const FaviconsWebpackPlugin = require("favicons-webpack-plugin");
 
 const NODE_ENV = process.env.NODE_ENV || "development";
-const isDevelopmentEnvironment = NODE_ENV === "development";
+const isDevEnv = NODE_ENV === "development";
 const sourceDir = path.resolve(__dirname, "src");
+
+const localIdentName = isDevEnv
+  ? "[path][name]---[local]---[hash:base64:5]"
+  : "[hash:base64:5]";
+
+const styleLoader = (options = {}) => {
+  let cssLoader = "css-loader";
+  if (options.module) {
+    cssLoader = `${cssLoader}?module&localIdentName=${localIdentName}`;
+  }
+  return ExtractTextPlugin.extract({
+    fallback: "style-loader",
+    use: [cssLoader, "postcss-loader", "sass-loader"]
+  });
+};
 
 const pages = [
   {
@@ -27,34 +43,33 @@ const pages = [
   }
 ];
 
-const entry = {
-  client: "./src/client.js"
-};
-
-if (isDevelopmentEnvironment) {
-  entry.app = "./src/markup.js";
-}
-
 const config = {
-  entry,
+  entry: {
+    client: "./src/client.js",
+    app: "./src/app.js"
+  },
   output: {
-    filename: `[name]${isDevelopmentEnvironment ? "" : ".[hash]"}.js`,
+    filename: `[name]${isDevEnv ? "" : ".[hash]"}.js`,
+    libraryTarget: "umd",
     path: path.resolve(__dirname, "dist")
   },
   devtool: "inline-source-map",
   devServer: {
     contentBase: "./dist",
-    hot: true
+    hot: isDevEnv
   },
   module: {
     rules: [
       {
         test: /\.scss$/,
         include: sourceDir,
-        use: ExtractTextPlugin.extract({
-          fallback: "style-loader",
-          use: ["css-loader", "postcss-loader", "sass-loader"]
-        })
+        exclude: /\.module\.scss$/,
+        use: styleLoader()
+      },
+      {
+        test: /\.module\.scss$/,
+        include: sourceDir,
+        use: styleLoader({ module: true })
       },
       {
         test: /\.(png|svg|jpg|gif)$/,
@@ -62,7 +77,8 @@ const config = {
         use: {
           loader: "url-loader",
           options: {
-            limit: 1000
+            limit: 8192,
+            name: "images/[name].[ext]"
           }
         }
       },
@@ -72,7 +88,8 @@ const config = {
         use: {
           loader: "url-loader",
           options: {
-            limit: 1000
+            limit: 8192,
+            name: "fonts/[name].[ext]"
           }
         }
       },
@@ -87,15 +104,17 @@ const config = {
   },
   plugins: [
     new CleanWebpackPlugin(["dist"]),
-    new webpack.HotModuleReplacementPlugin(),
+    new webpack.ProvidePlugin({
+      React: "react"
+    }),
     new webpack.DefinePlugin({
       "process.env": {
         NODE_ENV: JSON.stringify(NODE_ENV)
       }
     }),
     new ExtractTextPlugin({
-      filename: `[name]${isDevelopmentEnvironment ? "" : ".[hash]"}.css`,
-      disable: isDevelopmentEnvironment
+      filename: `[name]${isDevEnv ? "" : ".[hash]"}.css`,
+      disable: isDevEnv
     })
   ]
 };
@@ -103,16 +122,27 @@ const config = {
 for (let page of pages) {
   config.plugins.push(
     new HtmlWebpackPlugin({
+      inject: false,
       filename: page.filename,
       template: "./src/template.ejs",
       title: page.title,
-      isDevelopmentEnvironment
+      isDevEnv: isDevEnv
     })
   );
 }
 
-if (!isDevelopmentEnvironment) {
+if (isDevEnv) {
+  config.plugins.push(new webpack.HotModuleReplacementPlugin());
+}
+
+if (!isDevEnv) {
   config.plugins.push(new UglifyJSPlugin({ sourceMap: true }));
+  config.plugins.push(
+    new FaviconsWebpackPlugin({
+      logo: path.resolve(__dirname, "src/icon.svg"),
+      prefix: "/icons-[hash]/"
+    })
+  );
 }
 
 module.exports = config;

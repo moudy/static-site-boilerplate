@@ -4,9 +4,11 @@ import ReactDOM from "react-dom";
 import { BrowserRouter, Route, Link } from "react-router-dom";
 import { StaticRouter } from "react-router";
 
-const Home = () => <div>Home</div>;
-const About = () => <div>About</div>;
-const Topics = () => <div>Topics</div>;
+import Home from "./Home";
+import About from "./About";
+import Topics from "./Topics";
+
+import "./styles.scss";
 
 const App = () => (
   <div className="root">
