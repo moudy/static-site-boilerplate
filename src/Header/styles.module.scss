@@ -1,0 +1,17 @@
+header {
+  padding: 20px 0;
+}
+
+.home {
+  display: block;
+  width: 35px;
+  height: 35px;
+  background-image: url("./icon.svg");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+}
+
+nav a {
+  margin-left: 10px;
+}

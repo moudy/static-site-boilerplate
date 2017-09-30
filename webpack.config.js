@@ -139,7 +139,7 @@ if (!isDevEnv) {
   config.plugins.push(new UglifyJSPlugin({ sourceMap: true }));
   config.plugins.push(
     new FaviconsWebpackPlugin({
-      logo: path.resolve(__dirname, "src/icon.svg"),
+      logo: path.resolve(__dirname, "src/Header/icon.svg"),
       prefix: "/icons-[hash]/"
     })
   );
