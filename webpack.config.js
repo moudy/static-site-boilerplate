@@ -21,7 +21,12 @@ const styleLoader = (options = {}) => {
   }
   return ExtractTextPlugin.extract({
     fallback: "style-loader",
-    use: [cssLoader, "postcss-loader", "sass-loader"]
+    use: [
+      cssLoader,
+      "resolve-url-loader",
+      "postcss-loader?sourceMap=true",
+      "sass-loader?sourceMap=true"
+    ]
   });
 };
 
