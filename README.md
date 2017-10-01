@@ -3,6 +3,8 @@
 
 Basic configuration for developing static site. Assets are bundled by Webpack. React is used for templating. This is *NOT* a React app.
 
+Demo: http://59d1140ea6188f397689ea89.principal-jane-41044.netlify.com/
+
 ### Quickstart
 ```sh
 git clone https://github.com/moudy/static-site-boilerplate
